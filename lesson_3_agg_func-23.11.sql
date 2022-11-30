@@ -271,11 +271,19 @@ SELECT MIN(emp_no)  min_value , MAX(emp_no) AS "☀️"
     who started after the 1st of January 1997?
 */
 
-SELECT * FROM salaries;
+SELECT *
+ FROM salaries;
+ 
+ 
+ SELECT *
+ FROM salaries
+ WHERE from_date >=  '1997-01-01';
+
 
 SELECT emp_no 
 FROM salaries 
 GROUP BY emp_no;
+
 
 /*
 '10066', '100512.8333'
@@ -311,7 +319,7 @@ GROUP BY emp_no;
 
 # Round/Ceil/Floor - округлення для float
 # Round - округляю до знаку який вкажемо, Ceil - округлення до більшого, Floor - округлення до меншого 
-SELECT ROUND(5.1356, 1), CEIL(5.1356), FLOOR(5.9);
+SELECT ROUND(5.1356, 2), CEIL(5.1356), FLOOR(5.9);
 
 SELECT ROUND(3.14159, 2);
 
@@ -319,13 +327,29 @@ SELECT  CEIL(3.14159);
 
 SELECT FLOOR(3.14159);
 
+
 /*
 	Вивести всіх співробітників в кого рік народження між 1955 і 1970
     Наступний пункт sorted 
 */
+
+# First var
+SELECT *
+FROM employees 
+WHERE birth_date BETWEEN '1955-01-01' AND '1970-12-31'
+ORDER BY birth_date DESC;
+
+
+# Second var
+SELECT * 
+FROM employees
+WHERE birth_date >= '1955-01-01' AND birth_date <= '1970-12-31';
 
 
 /*
 	Вивести всіх співробітників кто отримав зп в  2002
     Наступний пункт sorted 
 */
+SELECT *
+FROM salaries
+WHERE from_date <  '2003-01-01' AND from_date >= '2002-01-01'  ;
