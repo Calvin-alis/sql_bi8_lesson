@@ -145,7 +145,6 @@ SELECT CURTIME() + 0; # змінити на числовий тип
 
 
 
-
 # Task 1: Відобразити значення поточної дати -1 рік
 
 SELECT NOW(), curdate();
@@ -167,8 +166,7 @@ FROM employees.salaries;
 SELECT emp_no, salary,  from_date,to_date
 FROM employees.salaries
 WHERE curdate() BETWEEN  from_date AND  to_date;
-
-
+ 
 
 /* Перевірка 
 	Поточна дата 					2022-11-30
@@ -185,6 +183,7 @@ WHERE from_date <= '1990-01-01' AND to_date >= '1990-01-01'
 ORDER BY emp_no;
 
 
+
 # 2 - var
 SELECT * 
 FROM employees.salaries
@@ -194,13 +193,16 @@ SELECT *
 FROM salaries;
 
 # Рахує різницю між датами
-SELECT TIMESTAMPDIFF(day, NOW(), '2022-08-15');
-SELECT TIMESTAMPDIFF(month, NOW(), '2022-09-15');
-SELECT TIMESTAMPDIFF(year, NOW(), '2023-09-15');
+
+SELECT TIMESTAMPDIFF(day, '2022-08-15', NOW());
+
+SELECT TIMESTAMPDIFF(month, '2022-08-03', NOW());
+
+SELECT TIMESTAMPDIFF(year, '2021-08-15', NOW());
 
 
 # Slide 8 - Date_format 
-SELECT DATE_FORMAT(NOW(), ' %W-%M-%y'), now();
+SELECT DATE_FORMAT(NOW(), ' %W %M %y'), now();
 
 SELECT DATE_FORMAT(CURRENT_TIME(), '%M %W %H   %h:%i %p'), CURRENT_TIME();
 
@@ -275,19 +277,18 @@ SELECT emp_no, first_name, last_name, gender,  EXTRACT(YEAR FROM birth_date) as 
  FROM employees.employees;
 
 
-
 SELECT *
 FROM
 employees
-WHERE MONTH(birth_date) = 1;
+WHERE MONTH(birth_date) = 01;
 
 
 # Slide 15 
-SELECT TO_DAYS(NOW()) ;
+SELECT TO_DAYS(NOW());
 
 SELECT FROM_DAYS(TO_DAYS(NOW())), TO_DAYS(NOW()) / 365;
 
-SELECT FROM_DAYS(731869);
+SELECT FROM_DAYS(738856);
 
 SELECT FROM_DAYS(366);
 
@@ -295,7 +296,7 @@ SELECT FROM_DAYS(366);
 # Slide 17 
 SELECT unix_timestamp(NOW()); # з 1970 1 січня
 
-SELECT FROM_UNIXTIME(1663177986);
+SELECT FROM_UNIXTIME(1670003073);
 
 SELECT FROM_UNIXTIME('1663165134') ; -- 0
 
@@ -314,8 +315,8 @@ SELECT HOUR(NOW()), MINUTE(NOW());
 
 SELECT LAST_DAY(NOW());
 
-SELECT LAST_DAY(date_add(NOW(), interval 1 month)), 
-dayname(LAST_DAY(date_add(NOW(), interval 1 month)));
+SELECT LAST_DAY(date_add(NOW(), interval 2 month)), 
+dayname(LAST_DAY(date_add(NOW(), interval 2 month)));
 
 
 SELECT LAST_DAY(DATE_ADD(NOW(), INTERVAL 1 MONTH));
@@ -328,9 +329,22 @@ SELECT DAY(last_day(now())), DAY(NOW());
 
 SELECT DAYNAME(DATE_SUB(NOW(), INTERVAL DAY(NOW())-1 DAY));
 
-# Знайти і вивезти першний день місяця 
 
+
+# Task 1: Знайти і вивезти перший день місяця 
 # First variant 
+
+SELECT DATE_SUB(NOW(), INTERVAL 1 MONTH);
+
+
+SELECT LAST_DAY(DATE_SUB(NOW(), INTERVAL 1 MONTH)) ;
+
+
+SELECT 
+    DATE_ADD(LAST_DAY(DATE_SUB(NOW(), INTERVAL 1 MONTH)),
+        INTERVAL 1 DAY);
+
+
 SELECT 
     DATE_ADD(LAST_DAY(DATE_ADD(NOW(), INTERVAL - 1 MONTH)),
         INTERVAL 1 DAY),
@@ -339,6 +353,9 @@ SELECT
 
 
 SELECT DAY(curdate()) - (DAY(CURDATE()) - 1);
+
+
+SELECT DATE_ADD(last_day(date_sub(NOW(),interval 1 month)),  interval 1 day);
 
 # Second variant
 SELECT DATE_FORMAT(SUBDATE(NOW(), (day(NOW())-1)), '%M %W') AS 'First day'; # отримати перший день
@@ -361,17 +378,27 @@ SELECT FROM_UNIXTIME(200806);
 
 SELECT from_unixtime(168706905);
 
-SELECT PERIOD_ADD(200806, curdate() + 0);
 
-SELECT PERIOD_ADD(200806,-5);
+# PERIOD_DIFF - повертає різницю у датах в місяцях, приймає значення у числовому форматі рік місяць(202212) 
+SELECT PERIOD_DIFF(202212, 202211);
 
-SELECT PERIOD_ADD(200806, 5 * 12);
 
 SELECT PERIOD_DIFF(201806,201703);  # різниця по місяцям 
 
 SELECT PERIOD_DIFF(200806,201703);
 
 SELECT PERIOD_DIFF(202209,202208);
+
+# Period_add - дату у форматі рік місяць,  число
+SELECT PERIOD_ADD(200806, curdate() + 0);
+
+SELECT PERIOD_ADD(200806, 201202);
+
+SELECT PERIOD_ADD(200806, -5); 
+
+SELECT PERIOD_ADD(200806, 5); 
+
+SELECT PERIOD_ADD(200806, 12); 
 
 
 # Slide 22
@@ -394,16 +421,29 @@ SELECT STR_TO_DATE('May 1, 2013','%M  %d,%Y');
 
 SELECT STR_TO_DATE('a09:30:17','a%h:%i:%s');
 
-SELECT STR_TO_DATE('ab09:30:17','ab%h:%i:%s');
+SELECT STR_TO_DATE('ab09:a30:17aaaa','ab%h:a%i:%s');
 
 SELECT STR_TO_DATE('09:30:17abcwefwefwef','%h:%i:%s');
 
 SELECT STR_TO_DATE('abc','abc');
 
-SELECT STR_TO_DATE('9','%Y');
+SELECT STR_TO_DATE('9','%m');
 
 SELECT STR_TO_DATE('9','%s');
 
+
+# Task _ Перетворити  наступне значення 'Dec 01 22'  в дату
+SELECT STR_TO_DATE('Dec 01 22', '%M %d %y');
+
+
+# Task _ Перетворити  наступне значення '12.721 11 01 am Dec 01 22abcabc'  в дату і час
+SELECT STR_TO_DATE('12.721 11 01 am:Dec 01 22abcabc','12.721 11 01 am: %b %d %y');
+
+SELECT STR_TO_DATE('12.721 11 01 am:Dec 01 22abcabc','%s.%f  11 01 am:Dec 01 22abcabc');
+
+SELECT STR_TO_DATE('12.721 11 01 am:Dec 01 22abcabc','%s.%f  %i  %I  %p :Dec 01 22abcabc');
+
+SELECT STR_TO_DATE('12.721 11 01 am:Dec 01 22abcabc','%s.%f  %i  %I  %p: %b %d %y');
 
 # Slide 24
 SELECT TIME('2013-12-30  01:02:07');
@@ -412,7 +452,8 @@ SELECT TIME(NOW());
 
 SELECT TIME('2023-12-31  01:02:03.000623');
 
-SELECT *,TIME(birth_date) FROM employees.employees;
+SELECT *,TIME(birth_date) 
+FROM employees.employees;
 
 # Slide 25 
 SELECT WEEKDAY('2008-02-03 22:23:00');
@@ -420,13 +461,13 @@ SELECT WEEKDAY('2007-11-06');
 
 SELECT WEEKOFYEAR('2008-12-31');
 
-SELECT WEEK('2008-02-20');
+SELECT WEEK('2022-02-20');
 
-SELECT WEEK('2008-02-20',0);
+SELECT WEEK('2022-02-20',0);
 
-SELECT WEEK('2008-02-20',1);
+SELECT WEEK('2022-02-20',1);
 
-SELECT WEEK('2016-12-31'); 
+SELECT WEEK('2022-02-21', 6); 
 
 # Slide 26
 SELECT UNIX_TIMESTAMP();
