@@ -190,9 +190,9 @@ SELECT title FROM employees.titles;
 
 
 # Task 1: Унікальні назви посад і назви департаментів одним списком
-SELECT title FROM employees.titles 
+SELECT title, 'title'   AS flag FROM employees.titles 
 UNION 
-SELECT dept_name FROM employees.departments;
+SELECT dept_name, 'dept_name' FROM employees.departments;
 
 
 
@@ -208,19 +208,24 @@ FROM employees.employees WHERE first_name LIKE 'a%' ;
 	 Вивезти одним списком всіх співробітників хто отримує зп більше ніж 150000 
      і в тих у кого діапазон  id від 43620 до 43630 з дублікатами
 */
-SELECT emp_no
+SELECT *
 FROM salaries 
-WHERE salary > 150000
-UNION ALL
-SELECT emp_no
-FROM employees
-WHERE emp_no BETWEEN 43620 AND 43630
-ORDER BY emp_no;
+WHERE emp_no BETWEEN 43620 AND 43630;
+
+
+SELECT emp_no, salary , 'name of column: salary from salaries' AS name_of_column, 'salary more than 150000' AS marker 
+FROM salaries
+WHERE salary >= 150000
+UNION ALL 
+SELECT emp_no, first_name, 'name of column: first_name' ,  'range between 43620 and 43630'
+FROM employees 
+WHERE emp_no BETWEEN 43620 AND 43630;
+
 
 
 /*	Де можемо використовувати sub
 		SELECT - (1 - колонка или 1 -  значення)
-		WHERE - (1 -  колона або  n -  значення)
+		WHERE - (1 -  колонка або  n -  значення)
 		FROM/JOIN - (n - колонок, m - значеннь) + потрібно вказати Alias 
 */
 
@@ -264,7 +269,7 @@ SELECT * FROM dept_manager;
 SELECT * FROM employees;
 
 # Where statement 
-SELECT ee.*
+SELECT ee.emp_no, ee.first_name, ee.last_name, ee.gender
 FROM employees.employees AS ee
 WHERE ee.emp_no IN (SELECT emp_no FROM dept_manager);
 
@@ -282,9 +287,12 @@ INNER JOIN employees.employees AS ee USING(emp_no);
 
 
 # Task 2: Відобразити всіх співробітників в кого ЗП більше ніж середня ЗП співробітника 10050
+         
+# Крок 1. Знайти avg для 10050
 SELECT AVG(salary)
-FROM employees.salaries
+FROM salaries
 WHERE emp_no = 10050;
+
 
 SELECT AVG(salary)
 FROM employees.salaries;
@@ -311,21 +319,47 @@ WHERE salary >
 
 
 # Task 3: Відобразити всіх співробітників в кого ЗП, більша ніж середня ЗП по компанії
+# Task 3.1: Відобразити всіх співробітників в кого середня ЗП, більша ніж середня ЗП по компанії
+
 SELECT AVG(salary)
 FROM salaries;
 
+SELECT emp_no, AVG(salary) AS avg_salary
+FROM salaries
+GROUP BY emp_no
+HAVING AVG(salary) > (SELECT AVG(salary)
+                 FROM salaries);
 
 
+    
 SELECT emp_no ,AVG(salary) AS 'Avg employees',  (SELECT AVG(salary) FROM salaries) AS 'Avg по компанії'
 FROM employees.salaries
 WHERE salary > (SELECT AVG(salary) FROM salaries)
 GROUP BY emp_no;
 
 
-
-
 # Deep Sub
 # Task 4: Знайти всіх співробітників, у яких зп більше ніж середне зп працівника з найбільшим номером
+
+# Крок 1: знайти найбільший номер
+SELECT MAX(emp_no)
+FROM salaries;
+
+SELECT emp_no
+FROM salaries
+ORDER BY emp_no DESC
+LIMIT 1;
+
+
+# Крок 2
+SELECT  AVG(salary)
+FROM salaries
+WHERE emp_no = (SELECT emp_no
+FROM salaries
+ORDER BY emp_no DESC
+LIMIT 1 );
+
+
 SELECT * FROM employees.salaries
 WHERE salary > 
 								(	SELECT AVG(salary) 
@@ -334,8 +368,7 @@ WHERE salary >
 																	(SELECT  MAX(emp_no)
                                                                     FROM employees.employees)
                                     )
-ORDER BY salary;
-
+ORDER BY emp_no ASC;
 
 
  # Step 1 - find more deep sub
@@ -384,7 +417,6 @@ WHERE emp_no IN
 				WHERE gender = 'F');
               
 
-			
 SELECT DISTINCT emp_no, ee.first_name, ee.last_name, ee.gender, salary , 
 						(
 											SELECT AVG(salary) 
@@ -404,8 +436,6 @@ WHERE salary > (
 														FROM employees
 														WHERE gender = 'F'
 )) AND emp_no IN (SELECT emp_no FROM employees WHERE gender = 'M');
-
-
 
 
 # Slide 12 
@@ -433,6 +463,13 @@ WHERE
             dept_manager);
             
 
+
+SELECT 
+        YEAR(from_date), SUM(salary) AS salary
+    FROM
+        salaries
+    GROUP BY YEAR(from_date);
+    
 # Slide 13
 SELECT 
     MIN(t1.salary), MAX(t1.salary), AVG(t1.salary)
@@ -456,7 +493,7 @@ SELECT
     salary - (SELECT 
             ROUND(AVG(salary), 0)
         FROM
-            salaries) difference
+            salaries) difference 
 FROM
     (SELECT 
         t1.*, t2.salary
@@ -467,46 +504,19 @@ ORDER BY first_name , last_name;
 
 
  /*
-	CRUD
+	CRUD  
 	C - CREATE
     R - READ/REWRITE
     U - UPDATE
     D  - DELETE  
  */
  
- # Limit
-  SELECT *
- FROM employees 
- WHERE emp_no BETWEEN 10030 AND 10050
- LIMIT 10;
- 
- SELECT * 
- FROM employees
- WHERE emp_no BETWEEN 10030 AND 10050
- LIMIT 10, 5;
- 
- 
- SELECT salary 
- FROM salaries
- ORDER BY salary DESC
- LIMIT 5;
- 
+
 /* Add task 
 
 # Task 1: Відобразити всіх співробітників із dept, у котрих найвище зп - Доп. практика
 
 SHOW TABLES;
-
-
-SELECT * FROM employees.dept_emp
-ORDER BY dept_no;
-
-
-SELECT * from salaries;
-
-SELECT * FROM 
-employees.salaries 
-WHERE salary = (SELECT MAX(salary) FROM employees.salaries) ;
 
 */
 
