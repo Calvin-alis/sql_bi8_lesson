@@ -1,4 +1,4 @@
-# Lesson  6: 09.12.22 
+# Lesson  6: 09.12.22  - 14.09.22
 /*
   Update, 
   Insert, 
@@ -6,7 +6,17 @@
   Delete,
   TRUNCATE
 */
+CREATE DATABASE IF NOT EXISTS lesson_6;
 
+USE lesson_6;
+
+SHOW TABLES;
+
+SELECT * FROM dept_emp;
+
+
+
+SELECT * FROM employees;
 
 # DML(Data Manipulation Language) - Select, Insert, Update, Delete
 # DDL(Data Definition Language) - Create, Alter, Drop, Rename
@@ -26,7 +36,7 @@ select 1 + 1;
 # IF NOT EXISTS
 
 CREATE TABLE IF NOT EXISTS  tasks(
-	task_id INT AUTO_INCREMENT,
+	task_id INT AUTO_INCREMENT, # +1 
 	title VARCHAR(255) NOT NULL, 
     start_date DATE,
     due_date DATE,
@@ -47,12 +57,18 @@ SELECT * FROM tasks;
 INSERT INTO tasks VALUES ('Learn mysql INSERT', 1);
 
 # Добавить данные в таблицу(перечислить колонки)  
-INSERT INTO tasks(title, priority) 	VALUES ('Learn mysql INSERT', 1);
+INSERT INTO tasks(title, priority) 	VALUES 
+						('Learn mysql INSERT', 1);
 
+
+INSERT INTO tasks(title) 	VALUES 
+						('Learn mysql INSERT without prio');
+                        
 SELECT * 
 FROM tasks;
 
-INSERT INTO tasks(title, priority) 	VALUES ('Learn mysql INSERT with Default', DEFAULT); # Звертаемся до default значення
+INSERT INTO tasks(title, priority) 	
+VALUES ('Learn mysql INSERT with Default', DEFAULT); # Звертаемся до default значення
 
 SELECT * FROM tasks;
 
@@ -66,7 +82,7 @@ SELECT * FROM tasks;
 
 # Якщо потрібно більше ніж один раз вставити значення
 INSERT INTO tasks VALUES 
-								(8,'Learn mysql INSERT', CURRENT_DATE(),CURRENT_DATE(),1, 'test2'),
+								(8,'Learn mysql INSERT', CURRENT_DATE(),CURRENT_DATE(),1 ,'test2'),
                                 (9,'Learn mysql INSERT', CURRENT_DATE(),CURRENT_DATE(), 2, 'test3'),
                                 (10,'Learn mysql INSERT', CURRENT_DATE(),CURRENT_DATE(), 4 ,'test4'),
                                 (12,'Learn mysql INSERT', CURRENT_DATE(),CURRENT_DATE(), 5 , 'test5');
@@ -92,11 +108,12 @@ INSERT INTO tasks(title) VALUES ('Try default');
 
 INSERT INTO tasks(title, priority) 
 SELECT dept_name, 1
-FROM departments;
+FROM employees.departments;
 
+SELECT * FROM tasks;
 
 INSERT INTO tasks(title, priority)  VALUES
-('Count of deparments', (SELECT COUNT(dept_name) FROM departments));
+('Count of deparments', (SELECT COUNT(dept_name) FROM employees.departments));
 
 SELECT * FROM tasks;
  
@@ -107,6 +124,8 @@ SELECT * FROM tasks;
     дата початку - 5 років від поточної 
  */
  DESC tasks;
+ 
+
  
  INSERT INTO tasks(title, start_date, priority,due_date) VALUES
  ('test', CURRENT_DATE(), DEFAULT,  DATE_SUB(curdate(), INTERVAL 5 year));
@@ -138,14 +157,17 @@ SELECT * FROM stats;
 
 # DROP TABLE emplo_dup1;
 
-CREATE TABLE   employees.emplo_dup1 LIKE employees.employees;
-
-
-TRUNCATE TABLE employees.emplo_dup1;
-
+CREATE TABLE   lesson_6.emplo_dup1 LIKE employees.employees;
 
 SELECT * FROM emplo_dup1;
 
+DESC emplo_dup1;
+
+# Повністю очистити данні з таблиці
+TRUNCATE  TABLE lesson_6.emplo_dup1;
+
+
+SELECT * FROM emplo_dup1;
 
 
 INSERT INTO emplo_dup1
@@ -172,7 +194,7 @@ WHERE emp_no = 10001 OR emp_no = 10002;
 
 UPDATE emplo_dup1  # обираемо таблицю
 SET  # вказати зміну
-gender  = 'new name', last_name = 'new last name' 
+gender  = 'F', last_name = 'new last name' 
 WHERE emp_no = 10001;
 
 SELECT * FROM emplo_dup1;
@@ -202,13 +224,17 @@ SET
 	hire_date = NOW()
 WHERE emp_no < 10050 AND YEAR(hire_date) > 1990;
 
+SELECT * FROM emplo_dup1;
+
 
 # Update - дві і більше таблиці
-CREATE TABLE employees.salaries_dup LIKE employees.salaries;
+CREATE TABLE salaries_dup LIKE employees.salaries;
+
+DESC salaries_dup;
 
 INSERT INTO salaries_dup
 SELECT *
-FROM salaries
+FROM employees.salaries
 WHERE emp_no < 10050 OR salary > 150000;
 
 SELECT * FROM salaries_dup;
@@ -216,20 +242,18 @@ SELECT * FROM salaries_dup;
 DESC salaries_dup;
 
 
-CREATE TABLE employees.titles_dup LIKE employees.titles;
+CREATE TABLE lesson_6.titles_dup LIKE employees.titles;
 
 INSERT INTO titles_dup
 SELECT *
-FROM titles
+FROM employees.titles
 WHERE emp_no < 10050;
 
 SELECT * FROM titles_dup;
 
-SELECT * FROM titles;
-
 
 UPDATE emplo_dup1
-INNER JOIN employees.titles_dup USING(emp_no)
+INNER JOIN lesson_6.titles_dup USING(emp_no)
 SET
 first_name = title, 
 last_name = title,
@@ -238,8 +262,11 @@ WHERE NOW() BETWEEN from_date AND to_date AND length(titles_dup.title) < 10;
 
 SELECT * FROM emplo_dup1;
 
+
+SELECT * FROM titles_dup;
+
 UPDATE emplo_dup1  
-INNER JOIN employees.salaries_dup USING(emp_no)
+INNER JOIN lesson_6.salaries_dup USING(emp_no)
 SET
  first_name = 'some_test_valu',
 salary = salary - 100000
@@ -284,7 +311,6 @@ LIMIT 5;
 
 SELECT * FROM emplo_dup1;
 
-
 DELETE
 FROM emplo_dup1
 WHERE emp_no BETWEEN 10001 AND 10010
@@ -300,15 +326,14 @@ CREATE TABLE emplo_dup2 LIKE employees.employees;
 INSERT INTO emplo_dup2
 SELECT * FROM employees.employees WHERE emp_no < 10050;
 
-SELECT * FROM emplo_dup2;
 
-SELECT * FROM employees.emplo_dup1 AS  d1
-INNER JOIN employees.emplo_dup2 AS d2 USING(emp_no);
+SELECT * FROM lesson_6.emplo_dup1 AS  d1
+INNER JOIN lesson_6.emplo_dup2 AS d2 USING(emp_no);
 
 
 DELETE d1.*, d2.*
-FROM employees.emplo_dup1 AS  d1
-INNER JOIN employees.emplo_dup2 AS d2 USING(emp_no);
+FROM lesson_6.emplo_dup1 AS  d1
+INNER JOIN lesson_6.emplo_dup2 AS d2 USING(emp_no);
 
 SELECT * FROM emplo_dup1;
 
