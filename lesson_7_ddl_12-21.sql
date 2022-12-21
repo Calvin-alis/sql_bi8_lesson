@@ -10,14 +10,17 @@
 */
 
 
+
 # CREATE DATABASE  test_create_db;
+
+USE test_create_db;
 
 CREATE DATABASE IF NOT EXISTS test_create_db; # Щоб не було помилок
 
 SHOW DATABASES; # Список БД
 
 
- # DROP DATABASE test_create_db;
+#  DROP DATABASE  IF EXISTS test_create_db;
  
  DROP DATABASE IF  EXISTS test_create_db;
  
@@ -164,9 +167,9 @@ DESC checklists2;
 	1. Primary Key - унікальний ідентифікатор, Не може бути NULL та всі id Унікальні
 	2. Not Null - не можете мати null значень 
     3. Unique - всі значення повинні бути унікальні (якщо данні вже є в таблиці, дублів не буде)
-    4. Foreign Key 
-    5. DEFAULT 
-    6. Check
+    4. Foreign Key - обмеження по зовнішнім ключам
+    5. DEFAULT  - добавляє значення якщо не отримали
+    6. Check - перевірка значення 
 */
 
 # PRIMARY KEY CONSTRAINT
@@ -196,7 +199,7 @@ VALUES
 /*
 	Alter - внести зміну в структуру таблиці
 	ALTER table(назва таблиці)
-    Дія(ADD/DROP/MODIFY) COLUMN назва колонки
+    Дія(ADD/DROP/MODIFY/CHANGE) COLUMN назва колонки
 */
 
 ALTER TABLE try_primary_key_const
@@ -212,6 +215,7 @@ INSERT INTO try_primary_key_const VALUES
 
 SELECT * FROM try_primary_key_const;
 
+# Продовжити 
 ALTER TABLE try_primary_key_const
 ADD COLUMN test_unique INT UNIQUE;
 
@@ -755,6 +759,9 @@ SELECT * FROM parts;
 
 DESC parts;
 
+
+# SHOW TABLE STATUS from employees; 
+# SHOW TABLE STATUS from employees; 
 /*
 	Видалити parts_chk_price_gt_cost  з parts
 */
