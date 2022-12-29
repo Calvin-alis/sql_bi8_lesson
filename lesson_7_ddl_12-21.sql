@@ -162,6 +162,7 @@ DROP FOREIGN KEY constr_task;
 
 DESC checklists2;
 
+
 /*
 	CONSTRAINT(Обмеження)- умовний фільтр для таблиці 
 	1. Primary Key - унікальний ідентифікатор, Не може бути NULL та всі id Унікальні
@@ -216,14 +217,50 @@ INSERT INTO try_primary_key_const VALUES
 SELECT * FROM try_primary_key_const;
 
 # Продовжити 
+# Task 1. Таблицю try_primary_key_const Добавити колонку test_const_default Varchar(15) Default 'Default'
+ALTER TABLE try_primary_key_const
+ADD COLUMN 
+test_const_default 
+VARCHAR(15)
+DEFAULT 'DEFAULT';
+
+DESC try_primary_key_const;
+
+# Task 2. Вставити 3-5 записив без test
+INSERT INTO try_primary_key_const(id, new_info) VALUES
+(4, 'Add 4'),
+(5, 'Add 5'),
+(6, 'Add 6');
+
+SELECT * FROM
+ try_primary_key_const;
+ 
+ # Task 3. Змінити test_const_dedault на add_info with constraints(not null, default)
+ ALTER TABLE try_primary_key_const
+ CHANGE COLUMN test_const_default
+ add_info
+ VARCHAR(15) NOT NULL DEFAULT 'DEFAULT';
+ 
+ 
+ DESC try_primary_key_const;
+
+# Task 4 DROP add_info from try_primary_key_const
+ALTER TABLE try_primary_key_const
+DROP COLUMN add_info;
+
+DESC try_primary_key_const;
+
+
 ALTER TABLE try_primary_key_const
 ADD COLUMN test_unique INT UNIQUE;
 
-INSERT INTO try_primary_key_const VALUES
-(3, 'Some text', 1);
+select * from try_primary_key_const;
 
 INSERT INTO try_primary_key_const VALUES
-(4, 'Some text', 1); # Поверне помилку, для 3 колонки оскільки 3 колонка буде тільки унікальні значення 
+(7, 'Some text', 1);
+
+INSERT INTO try_primary_key_const VALUES
+(8, 'Some text', 1); # Поверне помилку, для 3 колонки оскільки 3 колонка буде тільки унікальні значення 
 
 DESC try_primary_key_const;
 
@@ -235,14 +272,20 @@ ADD CONSTRAINT unique_constaint  UNIQUE(new_info); # Добавляемо кон
 ALTER TABLE try_primary_key_const
 DROP CONSTRAINT  unique_constaint; # Видалення констрейнт по імені
 
+
 ALTER TABLE try_primary_key_const
 MODIFY new_info VARCHAR(50) UNIQUE; 
 
+
 DESC try_primary_key_const;
+
+
 
 ALTER TABLE try_primary_key_const
 ADD COLUMN test_time_default DATE; # Добавляем колонку в кінець
 
+
+DESC try_primary_key_const;
 
 
 ALTER TABLE try_primary_key_const
@@ -273,7 +316,7 @@ VARCHAR(15)  NOT NULL;
 
 # CHECK - CONST
 ALTER TABLE try_primary_key_const
-ADD COLUMN age TINYINT;
+ADD COLUMN age  TINYINT UNSIGNED;
 
 DESC try_primary_key_const;
 
@@ -296,22 +339,32 @@ DESC try_primary_key_const;
 
 
 INSERT INTO try_primary_key_const( id, test_create_3_constrain, age, test_time_default) VALUES
-(1, 'Test const', 17, curtime() );
+(10002, 'Test const', 18, curtime() );
+
 
 ALTER TABLE try_primary_key_const
 DROP CONSTRAINT check_age;
 
-ALTER TABLE try_primary_key_const
-AUTO_INCREMENT = 10000;
 
-
-
-ALTER TABLE try_primary_key_const
-MODIFY id  INT  AUTO_INCREMENT PRIMARY KEY;
-
+# Task 6. Видалити всі constaint Unique
+TRUNCATE try_primary_key_const;
 
 ALTER TABLE try_primary_key_const
 DROP PRIMARY KEY;
+
+ALTER TABLE try_primary_key_const
+AUTO_INCREMENT = 100005;
+ 
+DESC try_primary_key_const;
+ 
+ALTER TABLE try_primary_key_const
+MODIFY id  INT  AUTO_INCREMENT ;
+
+SELECT * FROM try_primary_key_const;
+
+
+INSERT INTO try_primary_key_const( test_create_3_constrain, test_time_default) VALUES
+('Test ', current_time());
 
 ALTER TABLE try_primary_key_const
 ALTER COLUMN age 
@@ -344,7 +397,7 @@ DROP TABLE IF EXISTS checklists;
 SHOW TABLES;
 
 
-RENAME TABLE  checklists   TO checklists_old;
+RENAME TABLE  try_primary_key_const   TO try_primary_key_const_old;
 
 SHOW TABLES;
 
@@ -375,7 +428,7 @@ DESC posts;
     DROP COLUMNS імя_колонки/констрайнт 
 */
 
-
+# Task 7. Із таблиці posts. видалати excerpt
 ALTER TABLE posts # ALTER - вказуемо що будуть зміни в таблиці
 DROP COLUMN excerpt; # вказуемо що видаляемо(DROP) колонку(COLUMN)
 
@@ -388,10 +441,7 @@ ADD COLUMN d_after_id VARCHAR(15) AFTER id ;
 
 DESC posts;
 
-# Task 1.  З таблиці posts, видалити title 
 
-
-# Task 2. Добавити колонку time, з типом date
 
 
 SELECT * FROM posts;
@@ -437,6 +487,7 @@ DESC tasks_change_struct;
 ALTER TABLE tasks_change_struct
 ADD COLUMN id INT NOT NULL FIRST; # Добавити першим
 
+DESC tasks_change_struct;
 
 SELECT * FROM tasks_change_struct;
 
@@ -667,8 +718,8 @@ SELECT * FROM
 
 
 # Slide 25
-DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS products;
+DROP TABLE IF EXISTS categories;
 
 
 CREATE TABLE categories (
@@ -724,13 +775,14 @@ WHERE categoryId = 2;
 
 SELECT * FROM products;
 
+
 SET foreign_key_checks = 0; # Відлючити констрейети
 
 
 SET foreign_key_checks = 1; # Включити 
 
-
-
+# DROP TABLE  IF EXISTS parts;
+ 
 CREATE TABLE parts (
     part_no VARCHAR(18) PRIMARY KEY,
     description VARCHAR(40),
@@ -740,9 +792,9 @@ CREATE TABLE parts (
 
 
 INSERT INTO parts(part_no, description,cost,price)
-VALUES('A-001','Cooler', -2, 100);
+VALUES('A-001','Cooler', 100, 10);
 
-DROP TABLE parts;
+DROP TABLE  IF EXISTS parts;
 
 CREATE TABLE parts (
     part_no VARCHAR(18) PRIMARY KEY,
@@ -753,14 +805,14 @@ CREATE TABLE parts (
 );
 
 INSERT INTO parts(part_no, description,cost,price) 
-VALUES('A-001','Cooler',200,100);
+VALUES('A-001','Cooler',-5,10);
 
 SELECT * FROM parts;
 
 DESC parts;
+show full PROCESSLIST;
 
-
-# SHOW TABLE STATUS from employees; 
+#SHOW TABLE STATUS from employees; 
 # SHOW TABLE STATUS from employees; 
 /*
 	Видалити parts_chk_price_gt_cost  з parts
