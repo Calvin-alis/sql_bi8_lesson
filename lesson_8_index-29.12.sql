@@ -2,7 +2,6 @@
 	Lesson-8 29.12.22 - Index 
 */
 
-
 USE employees;
 
 
@@ -10,7 +9,7 @@ DESCRIBE employees;
 
 SHOW FULL PROCESSLIST;  # Показати всі процесси в системі 
 
-KILL 13;  # Видалити процесс за Id
+KILL 28;  # Видалити процесс за Id
 
 SHOW ENGINES;
  
@@ -21,6 +20,10 @@ INNER JOIN employees  AS ee;
 EXPLAIN SELECT * FROM 
 employees AS e
 INNER JOIN salaries  AS ee USING(emp_no);
+
+SELECT *
+FROM employees
+WHERE emp_no = 10050;
 
 /*
 	key - value: Кластерозований індекс. Один на всю таблицю.
@@ -55,7 +58,7 @@ SELECT
 
 SELECT emp_no, last_Name, first_Name
 FROM employees
-WHERE last_Name LIKE 'Ranta'; # 0.112 
+WHERE last_Name LIKE 'Ranta'; # 0.129 
 
 
     
@@ -78,15 +81,15 @@ CREATE INDEX last_Name ON employees(last_Name); # Створити index, вка
 
 SELECT emp_no, last_Name, first_Name
 FROM employees
-WHERE last_Name like 'Ranta'; # 0.00091 
+WHERE last_Name LIKE 'Ranta'; # 0.00091 
 
-SELECT  0.112 / 0.00091;
 
+SELECT  0.112 / 0.0011;
 
 
 EXPLAIN  SELECT emp_no, last_Name, first_Name
 FROM employees
-WHERE last_Name like 'Ranta'; # 0.0012
+WHERE last_Name LIKE 'Ranta'; # 0.0012
  
  
  
@@ -99,6 +102,7 @@ SHOW INDEX FROM employees; # Показати всі індекси з табл�
  Зробити Explain для запиту.
  Створити індекс для first_name і порівняти результати
  */
+ 
  SELECT * 
  FROM employees
  WHERE first_Name LIKE 'Parto'; # Час виконання 0.167
@@ -141,22 +145,31 @@ FROM employees;
 
 CREATE INDEX first_and_last_name ON employees (last_name, first_name); 
 
+
 /*
-	1	A 	
-    1	B
-    1	C
-    1	D
-    2	E
-    2	F
-    2	G
-    2	H
+	WHERE  col1 = 1 and col2 = D
+    
+    col1  col2
+	1	 	  A 	
+    1	  	  B
+    1		  C
+    1		  D
+    2		  E
+    2		  F
+    2		 G
+    2		 H
     Index(col1, col2) = 4 * 1 = 4
     Index(col2, col1) = 1 * 1 = 1
 */
-explain select * from 
+EXPLAIN SELECT * FROM 
 employees AS e
 INNER JOIN employees  AS ee;
 
+# Кількість ітерацій які повинно бути виконанно 
+SELECT 297802 * 297802;
+
+
+# Index for JOIN
 EXPLAIN SELECT ee.emp_no, ee.first_name, ee.last_name, es.salary
  FROM employees.employees AS ee
 INNER JOIN  employees.salaries AS es USING(emp_no);  
@@ -180,7 +193,9 @@ WHERE ee.last_name LIKE 'Ranta';
  employees
  WHERE gender = 'F'; # 0.0010
  
- 
+ EXPLAIN SELECT * FROM 
+ employees
+ WHERE gender = 'M'; 
  
 #select 0.144 / 0.0017;
 
@@ -193,7 +208,10 @@ FROM salaries;
 
 CREATE INDEX To_date ON salaries(to_date);
 
-
+EXPLAIN 
+SELECT 
+to_date 
+FROM salaries;
 
 EXPLAIN SELECT emp_no, last_Name, first_Name
 FROM employees
@@ -205,20 +223,19 @@ SELECT  LOWER('Ranta'), UPPER('Ranta');
 
 EXPLAIN SELECT emp_no, last_Name, first_name
 FROM employees
-WHERE LOWER(last_Name) LIKE 'R_nta'; # Виключиться  індекс через функцію lower/upper
+WHERE LOWER(last_Name)   LIKE 'R_nta'; # Виключиться  індекс через функцію lower/upper
 
 
 EXPLAIN SELECT emp_no, last_Name, first_Name
 FROM employees
-WHERE UPPER(last_Name) like 'Ranta';
+WHERE UPPER(last_Name) like 'RANTA';
 
 
 SHOW INDEX FROM employees;
 
 EXPLAIN SELECT emp_no, last_Name, first_Name
 FROM employees  IGNORE INDEX (last_Name, firstName) # Вказуємо індекси які будуть ігноровані 
-
-WHERE last_Name like 'Ranta';
+WHERE last_Name LIKE 'Ranta';
 
 
 SELECT emp_no, last_Name, first_Name
@@ -226,6 +243,8 @@ FROM employees  IGNORE INDEX (last_Name, firstName)
 WHERE last_Name like 'Ranta';
 
 select * from salaries;
+
+SELECT * FROM employees;
 
 CREATE INDEX last_Name_prefix ON employees(last_Name(8)); # Створюємо  префіксний індекс, буде індекс по першим 8 символам
 
@@ -275,12 +294,16 @@ WHERE hire_date BETWEEN '1985-01-01' AND '1999-01-01';
 
 
 EXPLAIN SELECT *  FROM
-employees.employees FORCE INDEX (hireDate) # Вказуємо який індекс потрібно використати 
+employees.employees FORCE INDEX (hireDate) # Вказуємо який індекс потрібно використати (ключове слово FORCE)
 WHERE hire_date BETWEEN '1985-01-01' AND '1999-01-01'; 
 
 
+EXPLAIN SELECT *  FROM
+employees.employees FORCE INDEX (hireDate) # Вказуємо який індекс потрібно використати (ключове слово FORCE)
+WHERE hire_date LIKE '1985%'; 
+
 EXPLAIN SELECT *  FROM  
-employees.employees IGNORE INDEX (hireDate) # Ігноруємо індекс 
+employees.employees IGNORE INDEX (hireDate) # Ігноруємо індекс , ключове слово IGNORE
 WHERE hire_date BETWEEN '1985-01-01' AND '1999-01-01'; 
 
 
@@ -303,6 +326,7 @@ DROP INDEX last_Name ON employees;
 ALTER TABLE employees
 DROP INDEX last_Name;
 
+
 DROP INDEX last_Name ON employees
 ALGORITHM = INPLACE  
 LOCK = DEFAULT;
@@ -314,17 +338,17 @@ ALGORITHM = COPY # Створюється копія таблиці без ін�
 LOCK = DEFAULT;
 
 
-DROP TABLE t;
+DROP TABLE IF EXISTS t;
 
 
-CREATE TABLE t (
+CREATE TABLE IF NOT EXISTS  t (
 pk INT PRIMARY KEY,
 c VARCHAR(10)
 );
 
 DESCRIBE t;
 
-# DROP INDEX 'PRIMARY' ON t;
+# DROP INDEX `PRIMARY` ON t;
 
 CREATE INDEX sal_desc ON salaries(salary DESC);
 
@@ -332,7 +356,7 @@ EXPLAIN
 SELECT *
 FROM salaries
 WHERE salary > 10050
-ORDER BY salary;
+ORDER BY salary ;
 
 SHOW INDEXES FROM employees;
 
@@ -340,7 +364,6 @@ SHOW INDEXES FROM employees;
 	 Сardinality - унікальні значення 
      Visible - включити/виключати індекс
      Expression - вказати довжену строки
-     
 */
 CREATE INDEX gender ON employees(gender);
 
@@ -358,11 +381,11 @@ WHERE VISIBLE = 'YES';
 		B-Tree Index - Binary Search - log2N
 */
 
-explain select first_name from employees;
+EXPLAIN select first_name from employees;
 
 
 
-show index from employees;
+SHOW INDEX FROM employees;
 
 DROP TABLE IF EXISTS contacts;
 
@@ -380,7 +403,7 @@ EXPLAIN SELECT * FROM contacts;
 
 SHOW INDEXES FROM contacts;
 
-
+SELECT * FROM contacts;
 
 INSERT INTO contacts(first_name,last_name,phone,email)
 VALUES('John','Doe','(408)-999-9765','john.doe@mysqltutorial.org');
@@ -389,8 +412,9 @@ VALUES('John','Doe','(408)-999-9765','john.doe@mysqltutorial.org');
 INSERT INTO contacts(first_name,last_name,phone,email)
 VALUES('Johny','Doe','(408)-999-4321','john.doe@mysqltutorial.org');
 
-INSERT IGNORE INTO contacts(first_name,last_name,phone,email) # Уникнути помилки, без вставки 
-VALUES('Johny','Doe','(408)-999-4321','john.doe@mysqltutorial.org');
+INSERT IGNORE INTO contacts(first_name,last_name,phone,email) # Уникнути помилки, без вставки, пропускає auto_increment
+VALUES('Johny','Doe','(408)-999-4321','john.doe@mysqltutorial.org1');
+
 
 SELECT *
 FROM contacts;
@@ -469,9 +493,9 @@ CREATE INDEX prefix_c1 ON try_prefix_index(c1(5));
 SHOW INDEX FROM employees;
 
 ALTER TABLE employees
-ALTER INDEX  gender  INVISIBLE;
+ALTER INDEX  gender  INVISIBLE; # Змінити видімість ключа, приймає два значення(Visible/Invisible)
 
 DROP INDEX invisibl_hire_date ON employees;
 
-CREATE INDEX invisibl_hire_date ON employees(hire_date) INVISIBLE ;
+CREATE INDEX invisibl_hire_date ON employees(hire_date) INVISIBLE ; # При створенні індекса по замовчуванню visible
 
