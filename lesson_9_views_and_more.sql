@@ -50,7 +50,7 @@ SELECT ee.emp_no, ee.first_name, ee.last_name, es.salary
 		INNER JOIN  salaries AS es USING(emp_no)
 		WHERE es.salary > (SELECT AVG(salary) FROM salaries);
  
- 
+ SELECT * FROM more_than_avg;
 
 /*
 	SET - задати значення змінної 
@@ -76,7 +76,8 @@ SELECT @count;
 SELECT 
 	@msrp  := MAX(salary) # Передаємо значення з таблицю в змінну 
 FROM 
-	salaries;
+	salaries
+    ;
     
     
 SELECT @msrp; 
@@ -117,17 +118,20 @@ SET @gender_male = 'M';
 
 SET @curtime = current_date();
 
+# Варіант студента 
+SELECT 
+ @meninfo  := first_name, last_name, hire_date
+ FROM employees AS ee
+ INNER JOIN dept_emp AS ede USING(emp_no)
+ WHERE ee.gender = "M"
+ AND CURDATE() BETWEEN ede.from_date AND ede.to_date;
+
+ 
 SELECT 
 	@emp_no := emp_no
 FROM 
 employees 
 WHERE gender = 'm' ;
-
-SELECT * FROM 
-salaries;
-
-SELECT * FROM
- employees;
 
 SELECT * 
 FROM salaries 
@@ -142,6 +146,8 @@ WHERE
     AND
 	@curtime BETWEEN  es.from_date AND es.to_date;
  
+
+
  /*
 	More information about IF and Case
     IF(statement cond, True, False )
@@ -178,7 +184,7 @@ FROM
     titles;
     
 SELECT SUM(case when title = 'Staff' then 1 else 0 end) as Staff,
-       SUM(case when title = 'Senior Staff' then 1 else 0 end) as 'Senior Staff'
+               SUM(case when title = 'Senior Staff' then 1 else 0 end) as 'Senior Staff'
 FROM titles;
 
 
@@ -192,7 +198,7 @@ FROM titles;
         4. Key - дозволяє інші типи 
 	    Range/List/Hash - число, Key - інші типи
 */
-
+DROP TABLE IF EXISTS ti;
 CREATE TABLE ti (id INT, 
 		amount DOUBLE, 
         tr_date DATE)
@@ -202,6 +208,8 @@ CREATE TABLE ti (id INT,
     
     
 DESC ti;
+
+SELECT * FROM ti;
     
 CREATE TABLE members (
     firstname VARCHAR(25) NOT NULL,

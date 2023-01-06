@@ -325,6 +325,7 @@ WHERE  birth_date > 1940-02-01 AND gender = 'F'
 AND YEAR(hire_date) = 1993;
 
 
+
 # 15
 SELECT first_name, last_name
 FROM employees.employees
