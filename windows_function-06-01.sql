@@ -206,12 +206,12 @@ SELECT sales_employee, fiscal_year, sale,
 	DENSE_RANK() OVER
 									(
 											PARTITION BY fiscal_year
-											ORDER BY sale  ASC
+											ORDER BY sale  desc
 									)  'dense rank ' ,
     RANK() OVER 
 									( 
 										PARTITION BY fiscal_year 
-										ORDER BY sale ASC
+										ORDER BY sale DESC
                                     ) AS 'Rank'
 FROM sales;
 
@@ -279,7 +279,7 @@ FROM overtime;
 SELECT employee_name, department, hours,
 FIRST_VALUE(employee_name) 
 		OVER (
-				PARTITION BY Wdepartment
+				PARTITION BY department
 				ORDER BY hours ASC
 				) least_over_time
 FROM overtime;
@@ -485,10 +485,10 @@ SELECT * FROM employees.salaries
 WHERE emp_no = 10002;
 
 SELECT emp_no, from_date,
-			LEAD(from_date,4) 	OVER ( 	# LEAD Повертає наступне значення, якщо значення не буде, то поверне Null
+			LEAD(from_date,0) 	OVER ( 	# LEAD Повертає наступне значення, якщо значення не буде, то поверне Null
 									PARTITION BY emp_no
 									ORDER BY from_date ) AS nextSalaryDate,
-			LAG(from_date, 2) OVER ( 		# LAG Повертає попереднє значення,  якщо значення не буде, то поверне Null
+			LAG(from_date, 1) OVER ( 		# LAG Повертає попереднє значення,  якщо значення не буде, то поверне Null
 									PARTITION BY emp_no
 									ORDER BY from_date )  AS previosSalaryDate
 FROM employees.salaries
